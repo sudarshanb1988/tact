@@ -173,3 +173,17 @@ button.tags-list {
   background: transparent;
   border: none;
 }
+
+.hide-child-element .tagname ul, .hide-child-element .textNode {
+  display: none
+}
+
+.arrow.glyphicon {
+  border: none;
+  color: #727272;
+  font-size: 11px;
+  padding: 0;
+  margin-left: -20px;
+  margin-right: 3px;
+  background: transparent;
+}

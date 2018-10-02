@@ -65,6 +65,14 @@ function removeAllMarkupHighlights() {
 function highlightTag(evnt, key) {
   evnt.stopPropagation();
   removeAllMarkupHighlights();
+  var hiddenChildEls = document.querySelectorAll('.hide-child-element');
+  for(var i=0;i<hiddenChildEls.length;i++) {
+    hiddenChildEls[i].className = hiddenChildEls[i].className.replace(/(hide-child-element)/g, '');
+    var closedElements = hiddenChildEls[i].getElementsByClassName('glyphicon-triangle-right');
+    for(var j=0;j<closedElements.length;j++) {
+      closedElements[j].className = closedElements[j].className.replace(/(glyphicon-triangle-right)/g, 'glyphicon-triangle-bottom');
+    }
+  }
   var elements = document.querySelectorAll('[highlighter='+key+']');
   elements[0].scrollIntoView();
   window.scrollBy(0, -60);
@@ -79,6 +87,7 @@ function highlightTag(evnt, key) {
 function setMarkupMapperHTML() {
   var arr = Object.keys(markupCountMapper);
   var html = '<table><tr><th>Tag</th><th>Count</th>';
+
   for(var i=0;i<arr.length; i++){
     html += '<tr><td><button onclick="highlightTag(event, \''+arr[i]+'\')">'+arr[i]+'</button></td><td>'+markupCountMapper[arr[i]]+'</td></tr>'
   };
@@ -125,6 +134,7 @@ function handleGotoSearchPageBtn() {
 function getSearchContent() {
   var el = document.getElementById('search-text');
   var value = el.value;
+
   if(!isURL(value)) {
     showElement('errorEl');
     return;
@@ -145,6 +155,16 @@ function getNodeAttributes(node) {
   return [].map.call(node.attributes, (attr => '<span class="attr">'+attr.nodeName +'<span class="attrSep">="<span class="attrVal">' + attr.nodeValue + '</span>"</span>')).join(' ');
 }
 
+function toggleMarkup(el) {
+  if(el.className.indexOf('glyphicon-triangle-bottom') > -1) {
+    el.className = el.className.replace(/(glyphicon-triangle-bottom)/g, 'glyphicon-triangle-right');
+    el.parentElement.className += 'hide-child-element';
+  } else if(el.className.indexOf('glyphicon-triangle-right') > -1) {
+    el.className = el.className.replace(/(glyphicon-triangle-right)/g, 'glyphicon-triangle-bottom');
+    el.parentElement.className = el.parentElement.className.replace(/(hide-child-element)/g, '');
+  }
+}
+
 function createHTMLText(node){
   if(node.children.length === 0) {
     return '';
@@ -156,6 +176,7 @@ function createHTMLText(node){
     var childNode = node.children[i];
     var textNode = [].reduce.call(childNode.childNodes, getTextNode, '');
     var tagName = childNode.localName;
+
     if (markupCountMapper[tagName]) {
       markupCountMapper[tagName] = (markupCountMapper[tagName] - 0) + 1;
     } else {
@@ -163,7 +184,7 @@ function createHTMLText(node){
     }
 
     var markup = [
-                    '<ul><li><span class="brace"><</span><span class="tagname">',
+                    '<ul><li><button class="glyphicon glyphicon-triangle-bottom arrow" onclick="toggleMarkup(this)"></button><span class="brace"><</span><span class="tagname">',
                     '<span highlighter='+tagName+'>'+tagName+'</span>',
                     '&nbsp;',
                     getNodeAttributes(childNode),
