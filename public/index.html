@@ -4,85 +4,40 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  <title>Document</title>
+  <title>HTML Source Parser</title>
+  <link href="css/main.css" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
-  <style>
-    body {
-      font-family: 'Roboto', sans-serif;
-    }
-    ul {
-      list-style: none;
-    }
-    .textNode {
-      padding-left: 20px;
-      white-space: nowrap;
-      color: black;
-    }
-    .brace, .attrSep {
-      color: #a893a6;
-    }
-    .tagname {
-      color: #901c88;
-    }
-    .attr {
-      color: #a25817;
-    }
-    .attrVal {
-      color: #2e29ae;
-    }
-  </style>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+
 </head>
 <body>
-  <div>
-    asdfafds
-    <p>adfadfdsfs</p>
+  <div class="search-container" id="search-container">
+    <div class="input-holder">
+      <input type="text" placeholder="Type a URL" onkeypress="hideElement('errorEl')" value="" id="search-text" class="search-input" onchange="getSearchContent()" />
+      <button class="search-btn" onclick="getSearchContent(this)">
+        <span class="glyphicon glyphicon-search "></span>
+      </button>
+      <div class="errorMsg hide" id="errorMsg">Please enter a valid URL</div>
+      <div class="errorMsg hide" id="customErrMsg">Failed to load the HTML source for the requested URL</div>
+    </div>
   </div>
-  <span/>
+  <div class="loader-container hide" id="loader">
+    <div class="loader"></div>
+  </div>
+  <div class="source-code-container hide" id="source-code-container">
+    <div class="nav-bar">
+      <div>
+        <button class="goto-search-page" onclick="handleGotoSearchPageBtn()">
+          <span class="glyphicon glyphicon-search"></span>
+        </button>
+        <div class="source-code-header" id="source-code-header"></div>
+        <button class="tags-list" title="Go back to search view">
+          <span class="glyphicon glyphicon-option-vertical"></span>
+        </button>
+      </div>
+    </div>
+    <div id="source-code"></div>
+  </div>
 </body>
-<script>
-  function getTextNode(a, b) {
-    return a + (b.nodeType === 3 ? b.textContent : '');
-  }
-
-  function getNodeAttributes(node) {
-    return [].map.call(node.attributes, (attr => '<span class="attr">'+attr.nodeName +'<span class="attrSep">="<span class="attrVal">' + attr.nodeValue + '</span>"</span>')).join(' ');
-  }
-
-  function createHTMLText(node){
-    if(node.children.length === 0) {
-      return '';
-    }
-
-    var arr = [];
-
-    for (let i=0; i < node.children.length; i++) {
-      var childNode = node.children[i];
-      var textNode = [].reduce.call(childNode.childNodes, getTextNode, '');
-
-      var markup = [
-                      '<ul><li><span class="brace"><</span><span class="tagname">',
-                      childNode.localName,
-                      '&nbsp;',
-                      getNodeAttributes(childNode),
-                      '<span class="brace">></span>',
-                      (textNode ? '<br/>' : ''),
-                      (textNode ? ['<span class="textNode">', textNode, "<br/></span>"].join('') : ''),
-                      createHTMLText(childNode),
-                      '</span><span class="brace"><&#47;</span><span class="tagname">',
-                      childNode.localName,
-                      '</span><span class="brace">\></span></li></ul>'
-                    ].join('');
-
-      arr.push(markup);
-    }
-
-    return arr.join('');
-  }
-
-
-
-  window.onload = function() {
-    document.body.innerHTML = createHTMLText(document);
-  }
-</script>
+<script type="text/javascript" src="js/main.js"></script>
 </html>
