@@ -27,16 +27,17 @@
   <div class="source-code-container hide" id="source-code-container">
     <div class="nav-bar">
       <div>
-        <button class="goto-search-page" onclick="handleGotoSearchPageBtn()">
+        <button class="goto-search-page" onclick="handleGotoSearchPageBtn()" title="Go back to search view">
           <span class="glyphicon glyphicon-search"></span>
         </button>
-        <div class="source-code-header" id="source-code-header"></div>
-        <button class="tags-list" title="Go back to search view">
+        <div class="source-code-header" onclick="hideElement('markupMapperEl')" id="source-code-header"></div>
+        <button class="tags-list" onclick="showElement('markupMapperEl')" title="Open mapper view">
           <span class="glyphicon glyphicon-option-vertical"></span>
         </button>
       </div>
     </div>
-    <div id="source-code"></div>
+    <div id="source-code" onclick="hideElement('markupMapperEl')"></div>
+    <div id="marker-mapper" class="marker-mapper hide"></div>
   </div>
 </body>
 <script type="text/javascript" src="js/main.js"></script>

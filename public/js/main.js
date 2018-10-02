@@ -3,6 +3,7 @@ var customErrorEl = document.getElementById('customErrMsg');
 var loaderEl =  document.getElementById('loader');
 var sourceCodeContainerEl =  document.getElementById('source-code-container');
 var searchContainerEl =  document.getElementById('search-container');
+var markupMapperEl = document.getElementById('marker-mapper');
 var pattern = /(http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/i;
 var markupCountMapper = {};
 
@@ -11,7 +12,8 @@ var elementSelectorMapper = {
   customErrorEl: customErrorEl,
   loaderEl: loaderEl,
   sourceCodeContainerEl: sourceCodeContainerEl,
-  searchContainerEl: searchContainerEl
+  searchContainerEl: searchContainerEl,
+  markupMapperEl: markupMapperEl
 };
 
 function showElement(key) {
@@ -52,6 +54,38 @@ function ajax(url, data, callback) {
   }
 }
 
+function removeAllMarkupHighlights() {
+  var elements = document.querySelectorAll('[highlighter]');
+  for(var i=0;i<elements.length;i++) {
+    var selector = elements[i];
+    selector.className = selector.className.replace('highlight', '');
+  }
+}
+
+function highlightTag(evnt, key) {
+  evnt.stopPropagation();
+  removeAllMarkupHighlights();
+  var elements = document.querySelectorAll('[highlighter='+key+']');
+  elements[0].scrollIntoView();
+  window.scrollBy(0, -60);
+  for(var i=0;i<elements.length;i++) {
+    var selector = elements[i];
+    if (selector.className.indexOf('highlight') === -1) {
+      selector.className += ' highlight';
+    }
+  }
+}
+
+function setMarkupMapperHTML() {
+  var arr = Object.keys(markupCountMapper);
+  var html = '<table><tr><th>Tag</th><th>Count</th>';
+  for(var i=0;i<arr.length; i++){
+    html += '<tr><td><button onclick="highlightTag(event, \''+arr[i]+'\')">'+arr[i]+'</button></td><td>'+markupCountMapper[arr[i]]+'</td></tr>'
+  };
+  html += '</table>';
+  document.getElementById('marker-mapper').innerHTML = html;
+}
+
 function handleAjaxResponse(resp) {
   hideElement('loaderEl');
   if(!resp || resp.statusText !== 'OK') {
@@ -65,6 +99,7 @@ function handleAjaxResponse(resp) {
         var htmlDoc = parser.parseFromString(respData.data, "text/html");
         markupCountMapper = {};
         var htmlText = createHTMLText(htmlDoc);
+        setMarkupMapperHTML();
         hideElement('searchContainerEl');
         showElement('sourceCodeContainerEl');
         document.getElementById('source-code').innerHTML = htmlText;
@@ -84,6 +119,7 @@ function handleGotoSearchPageBtn() {
   hideElement('sourceCodeContainerEl');
   document.getElementById('search-text').value = '';
   showElement('searchContainerEl');
+  hideElement('markupMapperEl');
 }
 
 function getSearchContent() {
@@ -120,7 +156,6 @@ function createHTMLText(node){
     var childNode = node.children[i];
     var textNode = [].reduce.call(childNode.childNodes, getTextNode, '');
     var tagName = childNode.localName;
-
     if (markupCountMapper[tagName]) {
       markupCountMapper[tagName] = (markupCountMapper[tagName] - 0) + 1;
     } else {
@@ -129,7 +164,7 @@ function createHTMLText(node){
 
     var markup = [
                     '<ul><li><span class="brace"><</span><span class="tagname">',
-                    tagName,
+                    '<span highlighter='+tagName+'>'+tagName+'</span>',
                     '&nbsp;',
                     getNodeAttributes(childNode),
                     '<span class="brace">></span>',
