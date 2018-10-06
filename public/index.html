@@ -13,7 +13,7 @@
 <body>
   <div class="search-container" id="search-container">
     <div class="input-holder">
-      <input type="text" placeholder="Type a URL" onkeypress="hideElement('errorEl')" value="" id="search-text" class="search-input" onchange="getSearchContent()" />
+      <input type="text" placeholder="Type a URL" onkeypress="hideElement('errorEl')" value="" id="search-text" class="search-input" onchange="getSearchContent(this)" />
       <button class="search-btn" onclick="getSearchContent(this)">
         <span class="glyphicon glyphicon-search "></span>
       </button>
@@ -26,18 +26,29 @@
   </div>
   <div class="source-code-container hide" id="source-code-container">
     <div class="nav-bar">
-      <div>
-        <button class="goto-search-page" onclick="handleGotoSearchPageBtn()" title="Go back to search view">
+      <div id="search-with-header">
+        <button class="goto-search-page" onclick="showInlineEditorHolder()" title="Go back to search view">
           <span class="glyphicon glyphicon-search"></span>
         </button>
-        <div class="source-code-header" onclick="hideElement('markupMapperEl')" id="source-code-header"></div>
-        <button class="tags-list" onclick="showElement('markupMapperEl')" title="Open mapper view">
+        <div class="source-code-header" id="source-code-header"></div>
+        <div class="inline-editor-holder hide" id="inline-editor-holder">
+          <div class="input-holder">
+            <input type="text" placeholder="Type a URL" onkeypress="hideElement('errorEl')" value="" id="search-text" class="search-input" onchange="getSearchContent(this)" />
+            <button class="search-btn" onclick="getSearchContent(this)">
+              <span class="glyphicon glyphicon-search "></span>
+            </button>
+            <div class="errorMsg hide" id="errorMsg">Please enter a valid URL</div>
+            <div class="errorMsg hide" id="customErrMsg">Failed to load the HTML source for the requested URL</div>
+          </div>
+        </div>
+        <!-- <button class="tags-list" onclick="showElement('markupMapperEl')" title="Open mapper view">
           <span class="glyphicon glyphicon-option-vertical"></span>
-        </button>
+        </button> -->
       </div>
+      <div id="search-with-header-input"></div>
     </div>
-    <div id="source-code" onclick="hideElement('markupMapperEl')"></div>
-    <div id="marker-mapper" class="marker-mapper hide"></div>
+    <div id="source-code"></div>
+    <div id="marker-mapper" class="marker-mapper"></div>
   </div>
 </body>
 <script type="text/javascript" src="js/main.js"></script>

@@ -10,8 +10,9 @@ ul {
 }
 .textNode {
   padding-left: 20px;
-  white-space: nowrap;
   color: black;
+  max-width: 100%;
+  display: inline-block;
 }
 .brace, .attrSep {
   color: #a893a6;
@@ -147,6 +148,7 @@ button.tags-list {
 
 #source-code {
   margin-top: 75px;
+  max-width: 70%;
 }
 
 .marker-mapper {
@@ -186,4 +188,10 @@ button.tags-list {
   margin-left: -20px;
   margin-right: 3px;
   background: transparent;
+}
+
+.inline-editor-holder .input-holder {
+  top: 5%;
+  max-width: 90%;
+  left: 10px;
 }

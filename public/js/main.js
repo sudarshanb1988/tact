@@ -4,6 +4,7 @@ var loaderEl =  document.getElementById('loader');
 var sourceCodeContainerEl =  document.getElementById('source-code-container');
 var searchContainerEl =  document.getElementById('search-container');
 var markupMapperEl = document.getElementById('marker-mapper');
+var inlineEditorEl = document.getElementById('inline-editor-holder');
 var pattern = /(http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/i;
 var markupCountMapper = {};
 
@@ -13,7 +14,8 @@ var elementSelectorMapper = {
   loaderEl: loaderEl,
   sourceCodeContainerEl: sourceCodeContainerEl,
   searchContainerEl: searchContainerEl,
-  markupMapperEl: markupMapperEl
+  markupMapperEl: markupMapperEl,
+  inlineEditorEl: inlineEditorEl
 };
 
 function showElement(key) {
@@ -62,26 +64,43 @@ function removeAllMarkupHighlights() {
   }
 }
 
-function highlightTag(evnt, key) {
-  evnt.stopPropagation();
-  removeAllMarkupHighlights();
-  var hiddenChildEls = document.querySelectorAll('.hide-child-element');
-  for(var i=0;i<hiddenChildEls.length;i++) {
-    hiddenChildEls[i].className = hiddenChildEls[i].className.replace(/(hide-child-element)/g, '');
-    var closedElements = hiddenChildEls[i].getElementsByClassName('glyphicon-triangle-right');
+function expandNode(selector) {
+  if(!selector) return;
+  if(selector.className && selector.className.indexOf('hide-child-element') > -1) {
+    selector.className = selector.className.replace(/(hide-child-element)/g, '');
+    var closedElements = selector.children;
     for(var j=0;j<closedElements.length;j++) {
       closedElements[j].className = closedElements[j].className.replace(/(glyphicon-triangle-right)/g, 'glyphicon-triangle-bottom');
     }
   }
+  expandNode(selector.parentNode);
+}
+
+function highlightTag(evnt, key) {
+  evnt.stopPropagation();
+  removeAllMarkupHighlights();
+  // var hiddenChildEls = document.querySelectorAll('.hide-child-element');
+  // for(var i=0;i<hiddenChildEls.length;i++) {
+  //   hiddenChildEls[i].className = hiddenChildEls[i].className.replace(/(hide-child-element)/g, '');
+  //   var closedElements = hiddenChildEls[i].getElementsByClassName('glyphicon-triangle-right');
+  //   for(var j=0;j<closedElements.length;j++) {
+  //     closedElements[j].className = closedElements[j].className.replace(/(glyphicon-triangle-right)/g, 'glyphicon-triangle-bottom');
+  //   }
+  // }
   var elements = document.querySelectorAll('[highlighter='+key+']');
   elements[0].scrollIntoView();
   window.scrollBy(0, -60);
   for(var i=0;i<elements.length;i++) {
     var selector = elements[i];
+    expandNode(selector);
     if (selector.className.indexOf('highlight') === -1) {
       selector.className += ' highlight';
     }
   }
+}
+
+function showInlineEditorHolder() {
+  showElement('inlineEditorEl');
 }
 
 function setMarkupMapperHTML() {
@@ -128,12 +147,12 @@ function handleGotoSearchPageBtn() {
   hideElement('sourceCodeContainerEl');
   document.getElementById('search-text').value = '';
   showElement('searchContainerEl');
-  hideElement('markupMapperEl');
+  // hideElement('markupMapperEl');
 }
 
-function getSearchContent() {
-  var el = document.getElementById('search-text');
-  var value = el.value;
+function getSearchContent(el) {
+  // var el = document.getElementById('search-text');
+  var value =el.value;
 
   if(!isURL(value)) {
     showElement('errorEl');
@@ -152,7 +171,9 @@ function getTextNode(a, b) {
 }
 
 function getNodeAttributes(node) {
-  return [].map.call(node.attributes, (attr => '<span class="attr">'+attr.nodeName +'<span class="attrSep">="<span class="attrVal">' + attr.nodeValue + '</span>"</span>')).join(' ');
+  return [].map.call(node.attributes, (function(attr) {
+    return '<span class="attr">'+attr.nodeName +'<span class="attrSep">="<span class="attrVal">' + attr.nodeValue + '</span>"</span>';
+  })).join(' ');
 }
 
 function toggleMarkup(el) {
@@ -184,7 +205,9 @@ function createHTMLText(node){
     }
 
     var markup = [
-                    '<ul><li><button class="glyphicon glyphicon-triangle-bottom arrow" onclick="toggleMarkup(this)"></button><span class="brace"><</span><span class="tagname">',
+                    '<ul><li class="hide-child-element">',
+                    (childNode.childNodes.length ? '<button class="glyphicon glyphicon-triangle-right arrow" onclick="toggleMarkup(this)"></button>' : ''),
+                    '<span class="brace"><</span><span class="tagname">',
                     '<span highlighter='+tagName+'>'+tagName+'</span>',
                     '&nbsp;',
                     getNodeAttributes(childNode),
